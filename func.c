@@ -12,9 +12,12 @@
 #include <signal.h>
 #include <dirent.h>
 
+void usleep(int micro_seconds);
 static volatile sig_atomic_t emnum;
 static struct div_s temp;
 static bool has_input = false;
+void creat_node1(struct node *a,struct node *b);
+void creat_node2(struct node *a);
 
 void swap(item a[],int index1,int index2)
 {
@@ -489,9 +492,14 @@ void pnl(void)
 /*a:array,top_ind:数组最大下标，lx类型，randm最大值，sym：1：1-randm，0：0-randm，dight：d mode时位数*/
 void ranari(int *a,int top_ind,int randm,int sym,int dight)
 {
+    static int ap = 0;
     if(top_ind < 0 || randm > RAND_MAX)
         error_func((d)1);
-    srand((unsigned int)time(NULL));
+    if(ap == 0)
+    {
+        ap = 1;
+        srand((unsigned int)time(NULL));
+    }
     if(dight !=0)
         error_func((d)254);
     if(a == NULL)
@@ -509,12 +517,19 @@ void ranari(int *a,int top_ind,int randm,int sym,int dight)
         }
         count ++;
         if(count > top_ind)
+        {
             break;
+        }
     }
 }
 void ranarf(double *a,int top_ind)
 {
-    srand((unsigned int)time(NULL));
+    static int ap = 0;
+    if(ap == 0)
+    {
+        ap = 1;
+        srand((unsigned int)time(NULL));
+    }
     if(top_ind < 0)
         error_func((d)1);
     if(a == NULL)
@@ -553,13 +568,13 @@ sig_atomic_t read_err(void)
     return emnum;
 }
 int is_file_exist(const char*file_path){
-   if(file_path==NULL){
-     return -1;
-   }
-   if(access(file_path,F_OK)==0){
-    return 0;
-   }
-   return -1;
+    if(file_path==NULL){
+        return -1;
+    }
+    if(access(file_path,F_OK)==0){
+        return 0;
+    }
+    return -1;
 }
 int is_dir_exist(const char*dir_path){
     if(dir_path==NULL){
@@ -569,4 +584,100 @@ int is_dir_exist(const char*dir_path){
         return -1;
     }
     return 0;
+}
+//real_max_index == size - 1;
+int all_thesame_i(int *a,int *b, int size)
+{
+    int count = 0;
+    while(1)
+    {
+        if(a[count] != b[count])
+            return count + 1;
+        count++;
+        if(count == size)
+        {
+            return 0;
+        }
+    }
+}
+void *nothing_todo(void *a)
+{
+    return a;
+}
+int count_same(int *a,int *b,int size)
+{
+
+    int error = 0;
+    int count = 0;
+    while(1)
+    {
+        if(a[count] != b[count])
+            error++;
+        count++;
+        if(count == size)
+        {
+            return error;
+        }
+
+    }
+}
+
+void copy(int *src,int *to,int size)
+{
+    int count = 0;
+    while(1)
+    {
+        to[count] = src[count];
+        count++;
+        if(count == size)
+            return;
+    }
+}
+
+void creat_linklist(struct node *a,int* dit,int array_size)
+{
+    dit = (int *)dit;
+    printf("%p,%d,%d,%d\n",(void*)dit,dit[0],dit[1],dit[2]);
+    creat_node2(a);
+    int count = 0;
+    while(1)
+    {
+        printf("%d\n",count);
+        struct node *temp = NULL;
+        a->data = dit[count];
+        creat_node2(temp);
+        creat_node1(a,temp);
+        a = a->next;
+        count++;
+        if(count == array_size)
+            return;
+    }
+}
+void creat_node1(struct node *a,struct node *b)
+{
+    a->next = b;
+    b->next = NULL;
+}
+void creat_node2(struct node *a)
+{
+    a = malloc(sizeof(struct node));
+    a->data = 0;
+    a->next = NULL;
+}
+void pll(struct node *a)
+{
+    printf("{");
+    while(1)
+    {
+        printf("%d,",a->data);
+        if(a->next == NULL)
+            return;
+        if(a->next->next == NULL)
+            break;
+        a = a->next;
+    }
+    a = a->next;
+    printf("%d}",a->data);
+    fflush(NULL);
+    return;
 }
