@@ -14,5 +14,10 @@
 
 int main(void)
 {
+    int a[10];
+    ranari(a,9,9,0,0);
+    struct node * t1 = NULL;
+    creat_linklist(t1,(int *)a,10);
+    pll(t1);
     return 0;
 }
