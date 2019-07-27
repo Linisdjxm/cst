@@ -1,4 +1,4 @@
-﻿#ifndef FUNC_H
+#ifndef FUNC_H
 #define FUNC_H
 
 #include <signal.h>
@@ -52,6 +52,11 @@ typedef volatile sig_atomic_t d;
 
 #include <stdbool.h>
 
+struct  node
+{
+   int data;
+   struct node *next;
+};
 
 struct div_s{
     unsigned long long result;
@@ -121,8 +126,14 @@ void error_func(volatile sig_atomic_t errnum);
 sig_atomic_t read_err(void);
 int is_file_exist(const char* file_path);
 int is_dir_exist(const char* dir_path);
+int all_thesame_i(int *a, int *b, int size);
+void *nothing_todo(void *a);
+void usleep(int micro_seconds);
+int count_same(int *a,int *b,int size);
+void copy(int *src,int *to,int size);
 
-
+void pll(struct node *a);
+void creat_linklist(struct node *a, int *dit, int array_size);
 #endif // FUNC_H
 
 
