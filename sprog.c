@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 #include "func.h"
 #include "sprog.h"
 #include "equation.h"
@@ -11,6 +12,7 @@ _Noreturn void fact_main(int x)
     int * temp = malloc(sizeof(int));
     *temp = printf("%lld\n",fact(a));
     free(temp);
+    exit(EXIT_SUCCESS);
 }
 _Noreturn void equ_main(void)
 {
@@ -146,4 +148,266 @@ _Noreturn void game2_main(void)
         {
             break;        }
     }
+    exit(EXIT_SUCCESS);
+
 }
+_Noreturn void r_amd_b_main(void)
+{
+    int red[6];
+    ranari(red,5,33,1,0);
+    int blue = rand()%16+1;
+    printf("Wait......\n");
+    sleep(1);
+    cls();
+    printf("RED:");
+    print_num(red,6,0,1);
+    printf("\nBLUE:%d\n",blue);
+    sleep(3);
+    cls();
+    int count = 1;
+    while(1)
+    {
+        int red[6];
+        ranari(red,5,33,1,0);
+        int blue = rand()%16+1;
+
+        int rred[6];
+        ranari(rred,5,33,1,0);
+        int rblue = rand()%16+1;
+
+        printf("It's %d times.\nRRED:",count);
+        print_num(rred,6,0,1);
+        printf("\nRBLUE:%d\n\n",rblue);
+        printf("RED:");
+        print_num(red,6,0,1);
+        printf("\nBLUE:%d\n",blue);
+        if(all_thesame_i(red,rred,6) == 0&&blue == rblue)
+        {
+            cls();
+            printf("%d times!（FIRST）\n",count);
+            printf("It's %d times.\nRRED:",count);
+            print_num(rred,6,0,1);
+            printf("\nRBLUE:%d\n\n",rblue);
+            printf("RED:");
+            print_num(red,6,0,1);
+            printf("\nBLUE:%d\n",blue);
+            break;
+        }
+        if(all_thesame_i(red,rred,6) == 0)
+        {
+            cls();
+            printf("%d times!（SECOND）\n",count);
+            printf("It's %d times.\nRRED:",count);
+            print_num(rred,6,0,1);
+            printf("\nRBLUE:%d\n\n",rblue);
+            printf("RED:");
+            print_num(red,6,0,1);
+            printf("\nBLUE:%d\n",blue);
+            break;
+        }
+        if(all_thesame_i(red,rred,6) == 0)
+        {
+            cls();
+            printf("%d times!（SECOND）\n",count);
+            printf("It's %d times.\nRRED:",count);
+            print_num(rred,6,0,1);
+            printf("\nRBLUE:%d\n\n",rblue);
+            printf("RED:");
+            print_num(red,6,0,1);
+            printf("\nBLUE:%d\n",blue);
+            break;
+        }
+        if(count_same(red,rred,6) == 1&&blue == rblue)
+        {
+            cls();
+            printf("%d times!（THIRD）\n",count);
+            printf("It's %d times.\nRRED:",count);
+            print_num(rred,6,0,1);
+            printf("\nRBLUE:%d\n\n",rblue);
+            printf("RED:");
+            print_num(red,6,0,1);
+            printf("\nBLUE:%d\n",blue);
+            break;
+        }
+        if((count_same(red,rred,6) == 1) || ((count_same(red,rred,6) == 2)&&blue == rblue))
+        {
+            cls();
+            printf("%d times!（FOURTH）\n",count);
+            printf("It's %d times.\nRRED:",count);
+            print_num(rred,6,0,1);
+            printf("\nRBLUE:%d\n\n",rblue);
+            printf("RED:");
+            print_num(red,6,0,1);
+            printf("\nBLUE:%d\n",blue);
+            break;
+        }
+        if((count_same(red,rred,6) == 2) || ((count_same(red,rred,6) == 3)&&blue == rblue))
+        {
+            cls();
+            printf("%d times!（FIFTH）\n",count);
+            printf("It's %d times.\nRRED:",count);
+            print_num(rred,6,0,1);
+            printf("\nRBLUE:%d\n\n",rblue);
+            printf("RED:");
+            print_num(red,6,0,1);
+            printf("\nBLUE:%d\n",blue);
+            break;
+        }
+        if(blue == rblue)
+        {
+            cls();
+            printf("%d times!（SIXTH）\n",count);
+            printf("It's %d times.\nRRED:",count);
+            print_num(rred,6,0,1);
+            printf("\nRBLUE:%d\n\n",rblue);
+            printf("RED:");
+            print_num(red,6,0,1);
+            printf("\nBLUE:%d\n",blue);
+            break;
+        }
+        count++;
+    }
+    exit(0);
+}
+
+_Noreturn void stack_main(void)
+{
+    struct stack *a,*b;
+    a = malloc(sizeof(struct stack));
+    a->top = 0;
+    b = malloc(sizeof(struct stack));
+    b->top = 0;
+    char input[256];
+    scanf("%255s",input);
+    getchar();
+    int count = 0;
+    int len = (int)strlen(input);
+    while(1)
+    {
+        if(input[count] == '(' || input[count] == '[' || input[count] == '{')
+            s_push(a,input[count]);
+        if(input[count] == ')' || input[count] == ']' || input[count] == '}')
+            s_push(b,input[count]);
+        count++;
+        if(count == len)
+            break;
+    }
+    if(s_qtop(a) != s_qtop(b))
+        puts("NO!");
+    else {
+        puts("YES!");
+    }
+    free(a);
+    free(b);
+    exit(EXIT_SUCCESS);
+}
+
+_Noreturn void xr_main(void)
+{
+    int a;
+    scanf("%d",&a);
+    getchar();
+    int x[a];
+    int count = 0;
+    while(1)
+    {
+        int temp;
+        scanf("%d",&temp);
+        x[count] = temp;
+        count++;
+        if(count == a)
+            break;
+    }
+    int temp2;
+    count = 0;
+    int uu = 0;
+    while(1)
+    {
+        int count2 = 0;
+        temp2 = x[count];
+        while(1)
+        {
+            if(temp2 == x[count2]&&count != count2)
+            {
+                x[count2] = -1;
+                uu++;
+            }
+            count2 ++;
+            if(count2 == a + 2)
+                break;
+        }
+        count++;
+        if(count == a + 2)
+            break;
+    }
+    printf("%d\n",a - uu + 2);
+    bsort(x,a);
+    int *tx = x + (uu - 2);
+    print_num(tx,a-uu + 2,1,1);
+    exit(EXIT_SUCCESS);
+}
+
+int ma_main(void)
+{
+#define S_MAX 10000
+    bool all[S_MAX];
+    int count = 0;
+    while(1)
+    {
+        all[count] = true;
+        count++;
+        if(count == S_MAX)
+            break;
+    }
+    count = 0;
+    while(1)
+    {
+        if(count % 2 == 0&&count != 0 &&count != 2)
+            all[count] = false;
+        count++;
+        if(count == S_MAX)
+            break;
+    }
+    count = 2;
+    int o1c = 0;
+    int o2c = 0;
+    while(1)
+    {
+        while(1)
+        {
+            count++;
+            if(count>=S_MAX||all[count]==true)
+                break;
+        }
+        if(count >= S_MAX)
+            break;
+        while(1)
+        {
+            if(o1c % count == 0&&o1c != 0 &&o1c != count)
+                all[o1c] = false;
+            o1c++;
+            if(o1c == S_MAX)
+                break;
+        }
+        o1c = 0;
+    }
+    int f = 0,s = 0;
+    while(1)
+    {
+        if(all[o2c]== true)
+        {
+            printf("%d ",o2c);
+            if(o2c >= 80000&&o2c < 90000)
+                f++;
+            else if(o2c >= 70000&&o2c<80000)
+                s++;
+        }
+        o2c++;
+        if(o2c == S_MAX)
+            break;
+    }
+    printf("\n\n%d,%d\n",f,s);
+    puts("");
+    return 0;
+}
+
