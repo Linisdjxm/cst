@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include <strings.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <termios.h> //操作终端
@@ -11,13 +12,18 @@
 #include <time.h>
 #include <signal.h>
 #include <dirent.h>
+#include <sys/wait.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <ctype.h>
+#include <math.h>
+#include <stdarg.h>
 
-void usleep(int micro_seconds);
 static volatile sig_atomic_t emnum;
 static struct div_s temp;
 static bool has_input = false;
-void creat_node1(struct node *a,struct node *b);
-void creat_node2(struct node *a);
+static struct pri_struct pri_temp;
 
 void swap(item a[],int index1,int index2)
 {
@@ -50,7 +56,7 @@ void bsort(item a[],int size)
             this_index++;
 #if DEBUG_MODE
             printf("\nDEBUG        :        %d\n",debug_count);
-            print_num(a,size);
+            print_num(a,size,0,1);
             printf("\n\n");
             debug_count++;
 #endif
@@ -98,11 +104,6 @@ bool istrs(char *a,int max_index)
 }
 void ceprint(int I_color, int B_color, char *mes)
 {
-    if(I_color == I_WHITE&&B_color ==B_BLACK)
-    {
-        printf("%s",mes);
-        return;
-    }
     printf("\033[%dm\033[%dm%s\033[0m",I_color,B_color,mes);
 }
 void cset(int I_color,int B_color)
@@ -346,13 +347,11 @@ getch(void) {
 
     return cr;
 }
-bool bogo_sort(item *a,int size)
+int bogo_sort(item *a,int size)
 {
     int i,j;
     int tag;
-#if DEBUG_MODE
     int debug_count = 1;
-#endif
     if(a == NULL)
     {
         return false;
@@ -363,10 +362,10 @@ bool bogo_sort(item *a,int size)
     {
 #if DEBUG_MODE
         printf("\nDEBUG        :        %d\n",debug_count);
-        print_num(a,size);
+        print_num(a,size,0,1);
         printf("\n\n");
-        debug_count++;
 #endif
+        debug_count++;
         tag = true;
         for(i = 1;i < size;i++)
         {
@@ -385,19 +384,59 @@ bool bogo_sort(item *a,int size)
             swap(a,i,j);
         }
     }
-    return true;
+    return debug_count;
 }
 
-void print_num(int a[],int size)
+void print_num(int a[],int size,int sym,int sym2)
 {
     int count = 0;
-    while(1)
+    if(sym2 != 0)
     {
-        printf("%d ",a[count]);
-        count++;
-        if(count == size)
-            break;
+        while(1)
+        {
+            printf("%d ",a[count]);
+            count++;
+            if(count == size)
+                break;
+        }
     }
+    else
+    {
+        while(1)
+        {
+            printf("%d",a[count]);
+            count++;
+            if(count == size)
+                break;
+        }
+    }
+    if(sym == 1)
+        puts("");
+}
+void print_num2(int a[],int size,int sym,int sym3,char x)
+{
+    int count = 0;
+    if(sym3 != 0)
+    {
+        while(1)
+        {
+            printf("%d%c",a[count],x);
+            count++;
+            if(count == size)
+                break;
+        }
+    }
+    else {
+        while(1)
+        {
+            printf("%d",a[count]);
+            count++;
+            if(count == size)
+                break;
+        }
+    }
+    if(sym == 1)
+        puts("");
 }
 void WHAT_DOSE_THIS_FUNC_REALLY_DO_(char c,int times)
 {
@@ -509,11 +548,30 @@ void ranari(int *a,int top_ind,int randm,int sym,int dight)
     {
         if(sym == 0)
         {
+            //#define FUN_MODE
             a[count] = rand() % (randm + 1);
+#ifdef FUN_MODE
+            if(a[count] == 9&&rand() % 719 == 1)
+                a[count] = 8;
+            if(a[count] == 8&&rand() % 512 == 1)
+                a[count] = 7;
+            if(a[count] == 8&&rand() % 719 == 1)
+                a[count] = 1;
+
+#endif
         }
         else
         {
             a[count] = rand() % randm + 1;
+#ifdef FUN_MODE
+            if(a[count] == 9&&rand() % 719 == 1)
+                a[count] = 8;
+            if(a[count] == 8&&rand() % 512 == 1)
+                a[count] = 7;
+            if(a[count] == 8&&rand() % 512 == 1)
+                a[count] = 1;
+
+#endif
         }
         count ++;
         if(count > top_ind)
@@ -622,7 +680,7 @@ int count_same(int *a,int *b,int size)
     }
 }
 
-void copy(int *src,int *to,int size)
+void copy_i(int *src,int *to,int size)
 {
     int count = 0;
     while(1)
@@ -634,50 +692,377 @@ void copy(int *src,int *to,int size)
     }
 }
 
-void creat_linklist(struct node *a,int* dit,int array_size)
+void copy_c(char *src,char *to)
 {
-    dit = (int *)dit;
-    printf("%p,%d,%d,%d\n",(void*)dit,dit[0],dit[1],dit[2]);
-    creat_node2(a);
     int count = 0;
     while(1)
     {
-        printf("%d\n",count);
-        struct node *temp = NULL;
-        a->data = dit[count];
-        creat_node2(temp);
-        creat_node1(a,temp);
-        a = a->next;
+        to[count] = src[count];
         count++;
-        if(count == array_size)
+        if(src[count-1] == '\0')
             return;
     }
 }
-void creat_node1(struct node *a,struct node *b)
+void copy_ic(int *src,char *to,int size) // NOT SAFE!!!!!!!!!!!
 {
-    a->next = b;
-    b->next = NULL;
-}
-void creat_node2(struct node *a)
-{
-    a = malloc(sizeof(struct node));
-    a->data = 0;
-    a->next = NULL;
-}
-void pll(struct node *a)
-{
-    printf("{");
+    int count = 0;
     while(1)
     {
-        printf("%d,",a->data);
-        if(a->next == NULL)
-            return;
-        if(a->next->next == NULL)
+        to[count] = (char)(src[count] + '0');
+        count++;
+        if(count == size)
             break;
-        a = a->next;
     }
-    a = a->next;
-    printf("%d}",a->data);
-    fflush(NULL);
-    return;
+    to[size - 1] = '\0';
+}
+void f_array(int *a,int size,int start,int step)
+{
+    int count = 0;
+    int a_a = start;
+    while(1)
+    {
+        a[count] = a_a;
+        a_a += step;
+        if(count == size)
+            break;
+    }
+}
+int t2t(char *two)
+{
+    int num = 0, a = atoi(two), j=1;
+    while(a)
+    {
+        num += (a%10) * j;
+        a /= 10;
+        j *= 2;
+    }
+    return num;
+}
+void t2t2(int a,char b[])
+{
+    int r,i=0,j=1,count[100];     //输入的是a
+    do               //循环，直到a等于0跳出
+    {
+        r=a%2;       //求每一次的余数，实际上最后输出的也是这个
+        a=a/2;
+        i++;
+        count[i]=r;
+
+    }
+    while(a!=0);
+    //printf("十进制整数转换为二进制数是:\n");
+    //if(i >= size - 1)
+    //b = NULL;
+    int count2 = 0;
+    for(j=i;j>0;j--)                     //这里是倒序输出
+    {
+        b[count2] = (char)(count[j] + '0');
+        count2++;
+    }
+    b[count2] = '\0';
+}
+
+
+void stack_init(struct stack *a)
+{
+    a = malloc(sizeof(struct stack));
+    a->top = 0;
+}
+bool s_push(struct stack *a,char b)
+{
+    if(a->top == 255)
+        return false;
+    a->data[a->top] = b;
+    a->top ++;
+    return true;
+}
+char s_pop(struct stack *a)
+{
+    if(a->top == 0)
+        return EOF;
+    a->top --;
+    return a->data[a->top];
+}
+//how many(1-xxx)
+int s_qtop(struct stack *a)
+{
+    return a->top + 1;
+}
+
+void check_arg(int argc,char **argv)
+{
+    if(argc > 1&&strcmp(argv[1],"-run") == 0)
+    {
+        system("rm -rf ./.gcc_temp");
+        int pid_status;
+        pid_t i2 = fork();
+        if(i2 == 0)
+        {
+            execl("/bin/mkdir","/bin/mkdir",".gcc_temp",NULL);
+        }
+        waitpid(i2,&pid_status,0);
+        pid_t i = fork();
+        if(i == 0)
+        {
+            execl("/bin/cp","/bin/cp",argv[2],"./.gcc_temp",NULL);
+        }
+        waitpid(i,&pid_status,0);
+        pid_t i3 = fork();
+        chdir("./.gcc_temp");
+        if(i3 == 0)
+        {
+            execl("/bin/gcc","/bin/gcc",argv[2],NULL);
+        }
+        waitpid(i3,&pid_status,0);
+        system("./a.out");
+        chdir("..");
+        system("rm -rf ./.gcc_temp");
+    }
+}
+
+void pn(int a,int sym)
+{
+    printf("%d%c",a,sym==0?'\0':'\n');
+}
+
+char temp_str[30];    // 临时子串
+
+void ReadStrUnit(char * str,char *temp_str,int idx,int len)  // 从母串中获取与子串长度相等的临时子串
+{
+    int index = 0;
+    for(index; index < len; index++)
+    {
+        temp_str[index] = str[idx+index];
+    }
+    temp_str[index] = '\0';
+}
+
+int GetSubStrPos(char *str1,char *str2)
+{
+    int idx = 0;
+    int len1 = strlen(str1);
+    int len2 = strlen(str2);
+
+    if( len1 < len2)
+    {
+        return -1;
+    }
+
+    while(1)
+    {
+        ReadStrUnit(str1,temp_str,idx,len2);    // 不断获取的从 母串的 idx 位置处更新临时子串
+        if(strcmp(str2,temp_str)==0)break;      // 若临时子串和子串一致，结束循环
+        idx++;                                  // 改变从母串中取临时子串的位置
+        if(idx>=len1)return -1;                 // 若 idx 已经超出母串长度，说明母串不包含该子串
+    }
+
+    return idx;    // 返回子串第一个字符在母串中的位置
+}
+
+void safe_gets(signed char *input,int len) //len:不包含'\0'
+{
+    int count = 0;
+    while(1)
+    {
+        input[count] = getchar();
+        if(count >= len||input[count] == EOF||input[count] == '\n')
+            break;
+        count++;
+    }
+    input[count] = '\0';
+}
+
+struct pri_struct double_test(char *x,int y)
+{
+    if(x[y] == '%'&&x[y+1] == '.')
+    {
+        int count = y+2;
+        while(1)
+        {
+            if(isdigit(x[count]) != true)
+                break;
+            count++;
+        }
+        int rs = count - (y+2);
+        if(x[y+1+rs+1] == 'f')
+            pri_temp.is_d = true;
+        if(count == y+2)
+        {
+            pri_temp.is_f = false;
+            return pri_temp;
+        }
+        pri_temp.is_f = true;
+        pri_temp.if_ishl = count - (y+2);
+        return pri_temp;
+    }
+    pri_temp.is_f = false;
+    pri_temp.is_d = false;
+    return pri_temp;
+}
+int pri_cs(const char *a)
+{
+    int size = strlen(a);
+    int c2 = 0;
+    int count = 0;
+    while(1)
+    {
+        if(a[count] == '%')
+        {
+            if(count == 0||(count!=0&&a[count - 1] != '%'))
+                c2++;
+        }
+        count++;
+        if(count == size)
+            break;
+    }
+    return c2;
+}
+
+void itoa(long n,char *r)
+{
+    char s[31];
+    long i,j,sign;
+    if((sign=n)<0)
+        n=-n;
+    i = 0;
+    do{
+        s[i++] = n % 10 + '0';
+    }while((n /= 10)>0);
+    if(sign < 0)
+    {
+        s[i++] = '-';
+    }
+    s[i] = '\0';
+    int count = 0;
+    for(j = i-1;j >= 0;j--)
+    {
+        r[count] = s[j];
+        count++;
+    }
+    r[count] = '\0';
+}
+int ftoa(char *str, double num, int n)        //n是转换的精度，即是字符串'.'后有几位小数
+{
+    int     sumI;
+    double   sumF;
+    int     sign = 0;
+    int     temp;
+    int     count = 0;
+
+    char *p;
+    char *pp;
+
+    if(str == NULL) return -1;
+    p = str;
+
+    /*Is less than 0*/
+    if(num < 0)
+    {
+        sign = 1;
+        num = 0 - num;
+    }
+
+    sumI = (int)num;    //sumI is the part of int
+    sumF = num - sumI;  //sumF is the part of double
+
+    /*Int ===> String*/
+    do
+    {
+        temp = sumI % 10;
+        *(str++) = temp + '0';
+    }while((sumI = sumI /10) != 0);
+
+
+    /*******End*******/
+
+
+
+
+    if(sign == 1)
+    {
+        *(str++) = '-';
+    }
+
+    pp = str;
+
+    pp--;
+    while(p < pp)
+    {
+        *p = *p + *pp;
+        *pp = *p - *pp;
+        *p = *p -*pp;
+        p++;
+        pp--;
+    }
+
+    *(str++) = '.';     //point
+
+    /*double ===> String*/
+    do
+    {
+        temp = (int)(sumF*10);
+        *(str++) = temp + '0';
+
+        if((++count) == n)
+            break;
+
+        sumF = sumF*10 - temp;
+
+    }while(!(sumF > -0.000001 && sumF < 0.000001));
+
+    *str = '/0';
+
+    return 0;
+
+}
+/*
+版权声明：本文为CSDN博主「王大军9527」的原创文章，遵循CC 4.0 by-sa版权协议，转载请附上原文出处链接及本声明。
+原文链接：https://blog.csdn.net/hui_love2046/article/details/5760907
+*/
+void easy_fputs(char *x)
+{
+    int ct = 0;
+    while(1)
+    {
+        putchar(x[ct]);
+        ct++;
+        if(x[ct] == '\0')
+            break;
+    }
+}
+
+void pdouble(double x,int dight)
+{
+    char y[65];
+    ftoa(y,x,64);
+    int count = 0;
+    while(1)
+    {
+        putchar(y[count]);
+        count++;
+        if(y[count - 1] == '.')
+            break;
+    }
+    int c2 = count;
+    int c3 = c2;
+    count = 0;
+    int size = strlen(y);
+    while(1)
+    {
+        putchar(y[c2]);
+        c2++;
+        count++;
+        if(c2 == size - 1)
+            break;
+    }
+    count = 0;
+    while(1)
+    {
+        if(dight < size-c3)
+            break;
+        easy_fputs("0");
+        count++;
+        if(count ==    dight-(size-(c3)) + 1)
+            break;
+    }
 }
