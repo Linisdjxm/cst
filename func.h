@@ -13,10 +13,15 @@
 #define PRIV 1
 #define LINE 25
 
-#define DEBUG_MODE 1
+//#define DEBUG_MODE 1
 
 
 #ifndef UNT8_SUPER_MODE
+
+struct stack{
+    char data[255];
+    int top;
+};
 
 typedef double itemd;
 typedef int item;
@@ -52,11 +57,6 @@ typedef volatile sig_atomic_t d;
 
 #include <stdbool.h>
 
-struct  node
-{
-   int data;
-   struct node *next;
-};
 
 struct div_s{
     unsigned long long result;
@@ -73,6 +73,12 @@ struct athing{
     char c;
     int x_rl;
     int y_dh;
+};
+
+struct pri_struct{
+    bool is_f;
+    bool is_d;
+    int if_ishl;
 };
 
 void swap(item a[],int index1,int index2);
@@ -107,8 +113,9 @@ void make_frac(struct frac *a, unsigned b, unsigned c, char sym);//it is used to
 long long fact(int a);
 int getch(void);
 
-bool bogo_sort(item *a,int size);
-void print_num(int a[],int size);
+int bogo_sort(item *a,int size);
+void print_num(int a[], int size, int sym,int sym2);
+void print_num2(int a[],int size,int sym,int sym3,char x);
 int fxpd(void);
 void cls(void);
 void PCTXY(char c, int x_rl, int y_dh,void (*prid)(void));
@@ -128,12 +135,30 @@ int is_file_exist(const char* file_path);
 int is_dir_exist(const char* dir_path);
 int all_thesame_i(int *a, int *b, int size);
 void *nothing_todo(void *a);
-void usleep(int micro_seconds);
 int count_same(int *a,int *b,int size);
-void copy(int *src,int *to,int size);
+void copy_i(int *src,int *to,int size);
+int t2t(char *two);
+void copy_c(char *src,char *to);
+void t2t2(int a, char b[]);
 
-void pll(struct node *a);
-void creat_linklist(struct node *a, int *dit, int array_size);
+void stack_init(struct stack *a);
+bool s_push(struct stack *a,char b);
+char s_pop(struct stack *a);
+int s_qtop(struct stack *a);
+void pn(int a,int sym);
+
+void copy_ic(int *src,char *to,int size);
+void check_arg(int argc,char **argv);
+void ReadStrUnit(char * str,char *temp_str,int idx,int len);
+int GetSubStrPos(char *str1,char *str2);
+
+void safe_gets(signed char *input,int len);
+void itoa(long n, char *r);
+void easy_fputs(char *x);
+int pri_cs(const char *a);
+int ftoa(char *str, double num, int n);
+void pdouble(double x,int dight);
+struct pri_struct double_test(char *x,int y);
 #endif // FUNC_H
 
 
