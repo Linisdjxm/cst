@@ -181,7 +181,7 @@ _Noreturn void r_amd_b_main(void)
         printf("RED:");
         print_num(red,6,0,1);
         printf("\nBLUE:%d\n",blue);
-        if(all_thesame_i(red,rred,6) == 0&&blue == rblue)
+        if(ats1i(red,rred,6) == 0&&blue == rblue)
         {
             cls();
             printf("%d times!（FIRST）\n",count);
@@ -193,7 +193,7 @@ _Noreturn void r_amd_b_main(void)
             printf("\nBLUE:%d\n",blue);
             break;
         }
-        if(all_thesame_i(red,rred,6) == 0)
+        if(ats1i(red,rred,6) == 0)
         {
             cls();
             printf("%d times!（SECOND）\n",count);
@@ -205,7 +205,7 @@ _Noreturn void r_amd_b_main(void)
             printf("\nBLUE:%d\n",blue);
             break;
         }
-        if(all_thesame_i(red,rred,6) == 0)
+        if(ats1i(red,rred,6) == 0)
         {
             cls();
             printf("%d times!（SECOND）\n",count);
