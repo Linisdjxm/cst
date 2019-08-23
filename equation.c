@@ -13,9 +13,9 @@ void frac_mode(void)
     input_frac(&c,'c');
     char sym;
     printf("Do you want \"ax");
-    color_pchar(I_RED,B_BLACK,'+');
+    cputchar(I_RED,B_BLACK,'+');
     printf("b=c\" or \"ax");
-    color_pchar(I_RED,B_BLACK,'-');
+    cputchar(I_RED,B_BLACK,'-');
     printf("b = c\"?[+/-]") ;
     sym = (char)getchar();
     getchar();
@@ -36,4 +36,3 @@ void frac_mode(void)
     getchar();
     system("clear");
 }
-
