@@ -18,6 +18,10 @@
 
 #ifndef UNT8_SUPER_MODE
 
+#define cstrlen(x,y) (x)strlen(y)
+#define intt (int)
+#define cht (char)
+
 struct stack{
     char data[255];
     int top;
@@ -28,6 +32,8 @@ typedef int item;
 typedef unsigned int uitem;
 typedef signed int sitem;
 typedef volatile sig_atomic_t d;
+typedef struct coordinates coor;
+
 
 #define I_BLACK 30
 #define I_RED 31
@@ -57,6 +63,7 @@ typedef volatile sig_atomic_t d;
 
 #include <stdbool.h>
 
+#define NULLCHAR 0x12c76dc
 
 struct div_s{
     unsigned long long result;
@@ -69,12 +76,20 @@ struct frac{
     char symbol;
 };
 
+/*struct athing{
+    char c;
+    int x_rl;
+    int y_dh;
+};*/
+struct coordinates{
+    int x;
+    int y;
+};
 struct athing{
     char c;
     int x_rl;
     int y_dh;
 };
-
 struct pri_struct{
     bool is_f;
     bool is_d;
@@ -92,7 +107,6 @@ void ceprint(int I_color,int B_color,char *mes);
 //I_* -> I_color, B_* -> B_color
 void cset(int I_color,int B_color);
 void recset(void);
-void color_pchar(int I_color,int B_color,char mes);
 void cputchar(int I_color,int B_color,char meschar);
 
 
@@ -113,7 +127,7 @@ void make_frac(struct frac *a, unsigned b, unsigned c, char sym);//it is used to
 long long fact(int a);
 int getch(void);
 
-int bogo_sort(item *a,int size);
+int bogo_sort(item *a, int size, int checkbit);
 void print_num(int a[], int size, int sym,int sym2);
 void print_num2(int a[],int size,int sym,int sym3,char x);
 int fxpd(void);
@@ -133,9 +147,9 @@ void error_func(volatile sig_atomic_t errnum);
 sig_atomic_t read_err(void);
 int is_file_exist(const char* file_path);
 int is_dir_exist(const char* dir_path);
-int all_thesame_i(int *a, int *b, int size);
+int ats1i(int *a, int *b, int size);
 void *nothing_todo(void *a);
-int count_same(int *a,int *b,int size);
+int ats1i2(int *a,int *b,int size);
 void copy_i(int *src,int *to,int size);
 int t2t(char *two);
 void copy_c(char *src,char *to);
@@ -159,7 +173,14 @@ int pri_cs(const char *a);
 int ftoa(char *str, double num, int n);
 void pdouble(double x,int dight);
 struct pri_struct double_test(char *x,int y);
+void pri_da(double *a, int size, int dight, bool flag1,bool flag2,int arg_f1);
+void rev_str(char *x, char *to);
+void printbi(__int128 x);
+__int128 readbi(void);
+void parrayc(int b, int c, char a[b][c],int flag1);
+struct coordinates conversion(struct coordinates a, int xmax, int ymax);
+bool ats2(int x,int y,const char a[x][y],char b);
+void fillarray2(int x,int y,char a[x][y],char b);
 #endif // FUNC_H
-
 
 
