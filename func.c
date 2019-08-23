@@ -5,6 +5,8 @@
 #include <string.h>
 #include <strings.h>
 #include <stdio.h>
+#include <pthread.h>
+#include <omp.h>
 #include <stdbool.h>
 #include <termios.h> //操作终端
 #include <unistd.h>
@@ -44,7 +46,7 @@ bool swap_safety(item a[],int size,int index1,int index2)
 }
 void bsort(item a[],int size)
 {
-#if DEBUG_MODE
+#ifdef DEBUG_MODE
     int debug_count = 1;
 #endif
     int out_count = 0;
@@ -54,7 +56,7 @@ void bsort(item a[],int size)
             if(a[this_index] > a[this_index + 1])
                 swap(a,this_index,this_index + 1);
             this_index++;
-#if DEBUG_MODE
+#ifdef DEBUG_MODE
             printf("\nDEBUG        :        %d\n",debug_count);
             print_num(a,size,0,1);
             printf("\n\n");
@@ -291,12 +293,6 @@ void make_frac(struct frac *a,unsigned b,unsigned c,char sym)
     a->numerator = b;
     a->denominator = c;
 }
-void color_pchar(int I_color,int B_color,char mes)
-{
-    cset(I_color,B_color);
-    putchar(mes);
-    recset();
-}
 void sub_frac(struct frac a,struct frac b,struct frac *c)
 {
     RFCD(&a,&b);
@@ -342,13 +338,17 @@ getch(void) {
         return EOF;
 
     cr = getchar();
-    if (tcsetattr(0, TCSANOW, &ots) < 0) // 设置还原成老的模式
+    if (tcsetattr(0, TCSANOW, &ots) < 0) // 设置还原成元模式
         return EOF;
 
     return cr;
 }
-int bogo_sort(item *a,int size)
+int bogo_sort(item *a,int size,int checkbit)
 {
+    if(checkbit == NULLCHAR)
+    {
+        return -1;
+    }
     int i,j;
     int tag;
     int debug_count = 1;
@@ -360,7 +360,7 @@ int bogo_sort(item *a,int size)
     srand((unsigned int)time(NULL));
     while(1)
     {
-#if DEBUG_MODE
+#ifdef DEBUG_MODE
         printf("\nDEBUG        :        %d\n",debug_count);
         print_num(a,size,0,1);
         printf("\n\n");
@@ -548,30 +548,14 @@ void ranari(int *a,int top_ind,int randm,int sym,int dight)
     {
         if(sym == 0)
         {
-            //#define FUN_MODE
+            //#define MODE
             a[count] = rand() % (randm + 1);
-#ifdef FUN_MODE
-            if(a[count] == 9&&rand() % 719 == 1)
-                a[count] = 8;
-            if(a[count] == 8&&rand() % 512 == 1)
-                a[count] = 7;
-            if(a[count] == 8&&rand() % 719 == 1)
-                a[count] = 1;
 
-#endif
         }
         else
         {
             a[count] = rand() % randm + 1;
-#ifdef FUN_MODE
-            if(a[count] == 9&&rand() % 719 == 1)
-                a[count] = 8;
-            if(a[count] == 8&&rand() % 512 == 1)
-                a[count] = 7;
-            if(a[count] == 8&&rand() % 512 == 1)
-                a[count] = 1;
 
-#endif
         }
         count ++;
         if(count > top_ind)
@@ -615,6 +599,7 @@ void ranarf(double *a,int top_ind)
         bcou++;
         if(bcou > top_ind)
             break;
+        count = 0;
     }
 }
 void error_func(volatile sig_atomic_t errnum)
@@ -644,7 +629,7 @@ int is_dir_exist(const char*dir_path){
     return 0;
 }
 //real_max_index == size - 1;
-int all_thesame_i(int *a,int *b, int size)
+int ats1i(int *a,int *b, int size)
 {
     int count = 0;
     while(1)
@@ -662,7 +647,7 @@ void *nothing_todo(void *a)
 {
     return a;
 }
-int count_same(int *a,int *b,int size)
+int ats1i2(int *a,int *b,int size)
 {
 
     int error = 0;
@@ -825,12 +810,12 @@ void pn(int a,int sym)
     printf("%d%c",a,sym==0?'\0':'\n');
 }
 
-char temp_str[30];    // 临时子串
+static char temp_str[30];    // 临时子串
 
 void ReadStrUnit(char * str,char *temp_str,int idx,int len)  // 从母串中获取与子串长度相等的临时子串
 {
-    int index = 0;
-    for(index; index < len; index++)
+    int index;
+    for(index = 0; index < len; index++)
     {
         temp_str[index] = str[idx+index];
     }
@@ -840,8 +825,8 @@ void ReadStrUnit(char * str,char *temp_str,int idx,int len)  // 从母串中获�
 int GetSubStrPos(char *str1,char *str2)
 {
     int idx = 0;
-    int len1 = strlen(str1);
-    int len2 = strlen(str2);
+    int len1 = (int)strlen(str1);
+    int len2 = (int)strlen(str2);
 
     if( len1 < len2)
     {
@@ -864,7 +849,7 @@ void safe_gets(signed char *input,int len) //len:不包含'\0'
     int count = 0;
     while(1)
     {
-        input[count] = getchar();
+        input[count] = (signed char)getchar();
         if(count >= len||input[count] == EOF||input[count] == '\n')
             break;
         count++;
@@ -901,7 +886,7 @@ struct pri_struct double_test(char *x,int y)
 }
 int pri_cs(const char *a)
 {
-    int size = strlen(a);
+    int size = cstrlen(int,a);
     int c2 = 0;
     int count = 0;
     while(1)
@@ -969,7 +954,7 @@ int ftoa(char *str, double num, int n)        //n是转换的精度，即是字�
     do
     {
         temp = sumI % 10;
-        *(str++) = temp + '0';
+        *(str++) = (char)(temp + '0');
     }while((sumI = sumI /10) != 0);
 
 
@@ -1001,7 +986,7 @@ int ftoa(char *str, double num, int n)        //n是转换的精度，即是字�
     do
     {
         temp = (int)(sumF*10);
-        *(str++) = temp + '0';
+        *(str++) = (char)(temp + '0');
 
         if((++count) == n)
             break;
@@ -1010,15 +995,17 @@ int ftoa(char *str, double num, int n)        //n是转换的精度，即是字�
 
     }while(!(sumF > -0.000001 && sumF < 0.000001));
 
-    *str = '/0';
+    *(str) = '\0';
 
     return 0;
-
+    /*
+    版权声明：本文为CSDN博主「王大军9527」的原创文章，遵循CC 4.0 by-sa版权协议，转载请附上原文出处链接及本声明。
+    原文链接：https://blog.csdn.net/hui_love2046/article/details/5760907
+    
+    注：原本此函数有一个错误，导致其无法使用，现已更正
+    */
 }
-/*
-版权声明：本文为CSDN博主「王大军9527」的原创文章，遵循CC 4.0 by-sa版权协议，转载请附上原文出处链接及本声明。
-原文链接：https://blog.csdn.net/hui_love2046/article/details/5760907
-*/
+
 void easy_fputs(char *x)
 {
     int ct = 0;
@@ -1046,7 +1033,7 @@ void pdouble(double x,int dight)
     int c2 = count;
     int c3 = c2;
     count = 0;
-    int size = strlen(y);
+    int size = cstrlen(int,y);
     while(1)
     {
         putchar(y[c2]);
@@ -1065,4 +1052,156 @@ void pdouble(double x,int dight)
         if(count ==    dight-(size-(c3)) + 1)
             break;
     }
+}
+
+void pri_da(double *a,int size,int dight,bool flag1,bool flag2,int arg_f1)
+{
+    int count = 0;
+    while(1)
+    {
+        if(flag2 == false)
+        {
+            if(arg_f1 != 0x12c76dc)
+                exit(EXIT_FAILURE);
+            printf("%.*f ",dight,a[count]);
+        }
+        else {
+            printf("%.*f%c",dight,a[count],(char)arg_f1);
+        }
+        count++;
+        if(count == size)
+            break;
+    }
+    if(flag1 == true)
+        pnl();
+}
+
+void rev_str(char *x,char *to)
+{
+    int size = cstrlen(int,x) - 1;
+    int count = 0;
+    while(1)
+    {
+        to[count] = x[size];
+        count++;
+        size --;
+        if(size < 0)
+            break;
+    }
+}
+__int128 readbi()
+{
+    __int128 x=0,f=1;
+    char ch=cht getchar();
+    while(ch<'0'||ch>'9')
+    {
+        if(ch=='-') f=-1;
+        ch=cht getchar();
+    }
+    while(ch>='0'&&ch<='9')
+    {
+        x=x*10+ch-'0'; ch=cht getchar();
+    }
+    return x*f;
+}
+void printbi(__int128 x)
+{
+    if(x<0)
+    {
+        putchar('-');
+        x=-x;
+    }
+    if(x>9)
+        printbi(x/10);
+    putchar(x%10+'0');
+    /*版权声明：printbi(),readbi()为CSDN博主「傻蛋的阿简」的原创文章(里的函数)，遵循CC 4.0 by-sa版权协议，转载请附上原文出处链接及本声明。
+    原文链接：https://blog.csdn.net/shadandeajian/article/details/81843805*/
+}
+
+
+void parrayc(int b,int c,char a[][c],int flag1)
+{
+    int co = 0;
+    int ci = 0;
+    while(1)
+    {
+        while(1)
+        {
+            if(flag1 == 0)
+                printf("%c ",a[co][ci]);
+            else
+            {
+                if(a[co][ci] == 'N')
+                    ceprint(I_BLACK,B_GREEN,"N ");
+                else if(a[co][ci] == 'Y')
+                    ceprint(I_BLACK,B_DRED,"Y ");
+                else
+                {
+                    printf("%c ",a[co][ci]);
+                }
+            }
+            fflush(NULL);
+            ci++;
+            if(ci == c)
+                break;
+        }
+        pnl();
+        ci = 0;
+        co++;
+        if(co == b)
+            break;
+    }
+}
+struct coordinates conversion(struct coordinates a,int xmax,int ymax)
+{
+    (void)xmax;
+    coor temp;
+    temp.x = ymax - 1 - a.y;
+    temp.y = a.x;
+    return temp;
+}
+
+bool ats2(int x,int y,const char a[x][y],char b)
+{
+    int co = 0,ci = 0;
+    while(1)
+    {
+        while(1)
+        {
+            char t = a[co][ci];
+            if(t != b)
+            {
+                //printf("%d,%d:FALSE:%c and %c\n",co,ci,t,b);
+                return false;
+            }
+            //printf("%d,%d:TRUE\n",co,ci);
+            ci++;
+            if(ci == y)
+                break;
+        }
+        ci = 0;
+        co++;
+        if(co == x)
+            break;
+    }
+    return true;
+}
+void fillarray2(int x,int y,char a[x][y],char b)
+{
+    int co = 0,ci = 0;
+    while(1)
+    {
+        while(1)
+        {
+            a[co][ci] = b;
+            ci++;
+            if(ci == y)
+                break;
+        }
+        ci = 0;
+        co++;
+        if(co == x)
+            break;
+    }
+
 }
