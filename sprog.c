@@ -217,7 +217,7 @@ _Noreturn void r_amd_b_main(void)
             printf("\nBLUE:%d\n",blue);
             break;
         }
-        if(count_same(red,rred,6) == 1&&blue == rblue)
+        if(ats1i2(red,rred,6) == 1&&blue == rblue)
         {
             cls();
             printf("%d times!（THIRD）\n",count);
@@ -229,7 +229,7 @@ _Noreturn void r_amd_b_main(void)
             printf("\nBLUE:%d\n",blue);
             break;
         }
-        if((count_same(red,rred,6) == 1) || ((count_same(red,rred,6) == 2)&&blue == rblue))
+        if((ats1i2(red,rred,6) == 1) || ((ats1i2(red,rred,6) == 2)&&blue == rblue))
         {
             cls();
             printf("%d times!（FOURTH）\n",count);
@@ -241,7 +241,7 @@ _Noreturn void r_amd_b_main(void)
             printf("\nBLUE:%d\n",blue);
             break;
         }
-        if((count_same(red,rred,6) == 2) || ((count_same(red,rred,6) == 3)&&blue == rblue))
+        if((ats1i2(red,rred,6) == 2) || ((ats1i2(red,rred,6) == 3)&&blue == rblue))
         {
             cls();
             printf("%d times!（FIFTH）\n",count);
